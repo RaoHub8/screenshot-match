@@ -8,8 +8,36 @@
 // hosting already compresses at the edge.
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
+  plugins: [
+    VitePWA({
+      registerType: "autoUpdate",
+      injectRegister: null,
+      manifestFilename: "manifest.json",
+      includeAssets: ["favicon.png", "icon-192.png", "icon-512.png"],
+      manifest: {
+        id: "/",
+        name: "Word by Word — Daily Vocabulary",
+        short_name: "Word by Word",
+        description: "Learn two practical English words each day.",
+        theme_color: "#315845",
+        background_color: "#f5f4ed",
+        display: "standalone",
+        start_url: "/",
+        icons: [
+          { src: "/icon-192.png", sizes: "192x192", type: "image/png" },
+          { src: "/icon-512.png", sizes: "512x512", type: "image/png" },
+        ],
+      },
+      workbox: {
+        navigateFallback: "/index.html",
+        navigateFallbackDenylist: [/^\/api\//, /^\/__.*$/],
+      },
+      devOptions: { enabled: false },
+    }),
+  ],
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this

@@ -1,0 +1,14 @@
+{
+  "id": "/",
+  "name": "Word by Word — Daily Vocabulary",
+  "short_name": "Word by Word",
+  "description": "Learn two practical English words each day.",
+  "theme_color": "#315845",
+  "background_color": "#f5f4ed",
+  "display": "standalone",
+  "start_url": "/",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

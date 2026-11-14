@@ -28,3 +28,5 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+Use the TanStack Start route as the app entry and vite-plugin-pwa's guarded generated service worker for offline support; do not add a parallel static HTML/JavaScript app.
