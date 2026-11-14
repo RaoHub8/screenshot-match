@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
-  ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, Flame, Headphones,
+  ArrowRight, BookOpen, Check, ChevronDown, Flame, Headphones,
   History, Leaf, LockKeyhole, Moon, Search, Settings2, Sparkles, Sun, Volume2, X,
 } from "lucide-react";
 
@@ -17,6 +17,7 @@ import {
   vocabulary, type QuizQuestion, type VocabularyWord,
 } from "@/lib/vocabulary";
 import { registerVocabularyPwa } from "@/lib/register-pwa";
+import deskImage from "@/assets/vocabulary-desk.jpg";
 
 const storageKey = "word-by-word:progress:v1";
 const navigation = [
@@ -139,10 +140,6 @@ function VocabularyHome() {
     progress.learnedIds.includes(word.id) && `${word.word} ${word.meaning} ${word.synonyms.join(" ")}`.toLowerCase().includes(searchTerm.trim().toLowerCase()),
   );
 
-  const setPreview = useCallback((enabled: boolean) => {
-    setProgress((current) => ({ ...current, previewMode: enabled }));
-  }, []);
-
   function setLearned(wordId: string) {
     setProgress((current) => ({
       ...current,
@@ -163,7 +160,6 @@ function VocabularyHome() {
   function submitAnswer() {
     if (!currentQuestion || !selectedChoice) return;
     setAnswers((current) => [...current, { selected: selectedChoice, correct: selectedChoice === currentQuestion.answer }]);
-    setProgress((current) => current);
     setSelectedChoice(`__checked__${selectedChoice}`);
   }
 
@@ -279,7 +275,7 @@ function VocabularyHome() {
           {activePage === "quiz" && (
             <section className="quiz-page">
               {!schedule.quiz && <div className="mb-5 flex items-center gap-3 border border-night-line bg-night-panel p-4 text-sm text-night-ink"><LockKeyhole className="size-4 shrink-0 text-editorial" /><span>Tonight's quiz opens at 8:30 PM.</span><Button variant="outline" size="sm" className="ml-auto shrink-0" onClick={() => setSettingsOpen(true)}>Preview settings</Button></div>}
-              {!quizStarted ? <QuizIntro count={todayWords ? todayWords.length : 2} attempts={todayAttempts} onStart={startQuiz} disabled={!schedule.quiz || !todayWords} /> : quizComplete ? <QuizResults score={answers.filter((answer) => answer.correct).length} questions={quizQuestions} answers={answers} onRestart={startQuiz} onArchive={() => setActivePage("archive")} /> : currentQuestion ? <QuizQuestionView question={currentQuestion} index={questionIndex} total={quizQuestions.length} selected={selectedChoice} checked={selectedChoice?.startsWith("__checked__") === true} answer={answers.at(-1)} onSelect={setSelectedChoice} onCheck={submitAnswer} onContinue={continueQuiz} /> : null}
+              {!quizStarted ? <QuizIntro count={todayWords ? todayWords.length : 2} attempts={todayAttempts} onStart={startQuiz} disabled={!schedule.quiz || !todayWords} /> : quizComplete ? <QuizResults score={answers.filter((answer) => answer.correct).length} questions={quizQuestions} answers={answers} onRestart={startQuiz} onArchive={() => setActivePage("archive")} /> : currentQuestion ? <QuizQuestionView question={currentQuestion} index={questionIndex} total={quizQuestions.length} selected={selectedChoice} checked={selectedChoice?.startsWith("__checked__") === true} answer={answers.at(-1)} onSelect={setSelectedChoice} onCheck={submitAnswer} onContinue={continueQuiz} onLeave={() => setActivePage("study")} /> : null}
             </section>
           )}
 
@@ -300,7 +296,7 @@ function VocabularyHome() {
         <DialogContent className="max-w-md">
           <DialogHeader><DialogTitle className="font-display text-2xl">Your study settings</DialogTitle><DialogDescription>Make your daily practice fit your schedule.</DialogDescription></DialogHeader>
           <div className="space-y-5 pt-2">
-            <div className="flex items-center justify-between gap-5"><div><Label htmlFor="preview-mode" className="text-sm font-semibold">Unlock all words and quizzes</Label><p className="mt-1 text-xs leading-5 text-muted-foreground">Preview the evening word and quiz at any time.</p></div><Switch id="preview-mode" checked={progress.previewMode} onCheckedChange={setPreview} aria-label="Unlock all words and quizzes" /></div>
+            <div className="flex items-center justify-between gap-5"><div><Label htmlFor="preview-mode" className="text-sm font-semibold">Unlock all words and quizzes</Label><p className="mt-1 text-xs leading-5 text-muted-foreground">Preview the evening word and quiz at any time.</p></div><Switch id="preview-mode" checked={progress.previewMode} onCheckedChange={(enabled) => setProgress((current) => ({ ...current, previewMode: enabled }))} aria-label="Unlock all words and quizzes" /></div>
             <div className="border-t border-border pt-4"><p className="text-sm font-semibold">Daily study times</p><div className="mt-2 flex gap-4 text-xs text-muted-foreground"><span>Morning · 6:00 AM</span><span>Evening · 5:00 PM</span><span>Quiz · 8:30 PM</span></div></div>
             {installPrompt && <Button className="w-full" onClick={promptInstall}><BookOpen /> Add to your home screen</Button>}
           </div>
@@ -358,7 +354,7 @@ function QuizIntro({ count, attempts, onStart, disabled }: { count: number; atte
   </div>;
 }
 
-function QuizQuestionView({ question, index, total, selected, checked, answer, onSelect, onCheck, onContinue }: {
+function QuizQuestionView({ question, index, total, selected, checked, answer, onSelect, onCheck, onContinue, onLeave }: {
   question: QuizQuestion;
   index: number;
   total: number;
@@ -368,11 +364,12 @@ function QuizQuestionView({ question, index, total, selected, checked, answer, o
   onSelect: (value: string) => void;
   onCheck: () => void;
   onContinue: () => void;
+  onLeave: () => void;
 }) {
   const checkedChoice = checked ? selected?.replace("__checked__", "") : null;
   const letters = ["A", "B", "C", "D"];
   return <div className="quiz-question-panel">
-    <div className="flex items-center justify-between gap-4"><Button variant="ghost" size="sm" className="text-night-muted" onClick={() => window.dispatchEvent(new CustomEvent("navigate-study"))}><ArrowLeft /> Today's words</Button><span className="text-xs font-semibold text-night-muted">{index + 1} of {total}</span></div>
+    <div className="flex items-center justify-between gap-4"><Button variant="ghost" size="sm" className="text-night-muted" onClick={onLeave}>Today's words</Button><span className="text-xs font-semibold text-night-muted">{index + 1} of {total}</span></div>
     <div className="mt-5 h-1 overflow-hidden rounded-full bg-night-line"><div className="h-full bg-primary transition-all" style={{ width: `${(index + 1) / total * 100}%` }} /></div>
     <p className="mt-6 text-[10px] font-semibold uppercase tracking-wider text-editorial">{question.type} · {question.word}</p>
     <h2 className="mt-2 max-w-2xl font-display text-2xl font-semibold leading-snug text-night-ink sm:text-3xl">{question.prompt}</h2>
@@ -415,5 +412,3 @@ function ArchiveEntry({ word, onRemove, onSpeak }: { word: VocabularyWord; onRem
     {open && <div className="space-y-3 pt-2"><WordRelation label="Similar" terms={word.synonyms} /><WordRelation label="Opposite" terms={word.antonyms} />{word.examples.map((example) => <p key={example} className="border-l border-editorial pl-3 text-sm leading-5 text-muted-foreground">“{example}”</p>)}</div>}
   </article>;
 }
-
-import deskImage from "@/assets/vocabulary-desk.jpg";
