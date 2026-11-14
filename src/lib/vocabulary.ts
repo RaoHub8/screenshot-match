@@ -85,6 +85,22 @@ export function getWordsForDate(dateKey: string): [VocabularyWord, VocabularyWor
   return [first, second];
 }
 
+export function getLocalDateKey(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+export function getScheduleAccess(date: Date, previewMode: boolean) {
+  const minuteOfDay = date.getHours() * 60 + date.getMinutes();
+  return {
+    morning: previewMode || minuteOfDay >= 6 * 60,
+    evening: previewMode || minuteOfDay >= 17 * 60,
+    quiz: previewMode || minuteOfDay >= 20 * 60 + 30,
+  };
+}
+
 export type QuizQuestion = {
   wordId: string;
   word: string;
@@ -129,8 +145,14 @@ export function buildDailyQuiz(words: [VocabularyWord, VocabularyWord]): QuizQue
       explanation = `“${answer}” uses ${word.word} naturally and correctly.`;
     }
 
+    const filler = type === "Meaning"
+      ? vocabulary.map((item) => item.meaning)
+      : type === "Sentence usage"
+        ? vocabulary.map((item) => item.examples[0])
+        : vocabulary.map((item) => item.word);
+    choices = [...new Set([answer, ...choices.filter((choice) => choice !== answer), ...filler.filter((choice) => choice !== answer)])].slice(0, 4);
     const shift = (wordIndex * 3 + typeIndex) % choices.length;
     choices = [...choices.slice(shift), ...choices.slice(0, shift)];
-    return { wordId: word.id, word: word.word, type, prompt, choices: [...new Set(choices)], answer, explanation };
+    return { wordId: word.id, word: word.word, type, prompt, choices, answer, explanation };
   }));
 }
