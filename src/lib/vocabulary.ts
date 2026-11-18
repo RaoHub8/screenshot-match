@@ -76,6 +76,9 @@ export const vocabulary: VocabularyWord[] = [
 /** The local calendar day chooses a stable pair; neighboring days never share a word. */
 export function getWordsForDate(dateKey: string): [VocabularyWord, VocabularyWord] {
   const [year, month, day] = dateKey.split("-").map(Number);
+  if (year === undefined || month === undefined || day === undefined) {
+    throw new Error("The date key is invalid.");
+  }
   const dayNumber = Math.floor(Date.UTC(year, month - 1, day) / 86_400_000);
   const firstIndex = ((dayNumber * 2) % vocabulary.length + vocabulary.length) % vocabulary.length;
   const secondIndex = (firstIndex + 1) % vocabulary.length;
@@ -115,6 +118,7 @@ export function buildDailyQuiz(words: [VocabularyWord, VocabularyWord]): QuizQue
   const questionTypes: QuizQuestion["type"][] = ["Synonym", "Antonym", "Meaning", "Sentence usage"];
   return words.flatMap((word, wordIndex) => questionTypes.map((type, typeIndex) => {
     const otherWord = words[1 - wordIndex];
+    if (!otherWord) throw new Error("The daily quiz word pair is incomplete.");
     const start = (wordIndex * 17 + typeIndex * 11 + 3) % vocabulary.length;
     const distractor = vocabulary[(start + (start === 0 ? 1 : 0)) % vocabulary.length];
     const secondDistractor = vocabulary[(start + 7) % vocabulary.length];

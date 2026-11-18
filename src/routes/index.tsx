@@ -360,7 +360,7 @@ function QuizQuestionView({ question, index, total, selected, checked, answer, o
   total: number;
   selected: string | null;
   checked: boolean;
-  answer?: QuizAnswer;
+  answer: QuizAnswer | undefined;
   onSelect: (value: string) => void;
   onCheck: () => void;
   onContinue: () => void;
