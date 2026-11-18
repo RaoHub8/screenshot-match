@@ -415,17 +415,20 @@ export const vocabulary: VocabularyWord[] = [
   { id: "zest", word: "zest", phonetic: "/zest/", partOfSpeech: "noun", meaning: "Great enthusiasm and energy.", synonyms: ["enthusiasm", "gusto"], antonyms: ["apathy", "boredom"], examples: ["She tackled the day with zest.", "He has a real zest for life.", "A little zest makes any hobby fun.", "They sang with zest."] },
 ];
 
-/** The local calendar day chooses a stable pair; neighboring days never share a word. */
-export function getWordsForDate(dateKey: string): [VocabularyWord, VocabularyWord] {
+/** The local calendar day chooses a stable pair; mastered words are removed when enough remain. */
+export function getWordsForDate(dateKey: string, learnedIds: string[] = []): [VocabularyWord, VocabularyWord] {
   const [year, month, day] = dateKey.split("-").map(Number);
   if (year === undefined || month === undefined || day === undefined) {
     throw new Error("The date key is invalid.");
   }
+  const learned = new Set(learnedIds);
+  const available = vocabulary.filter((word) => !learned.has(word.id));
+  const pool = available.length >= 2 ? available : vocabulary;
   const dayNumber = Math.floor(Date.UTC(year, month - 1, day) / 86_400_000);
-  const firstIndex = ((dayNumber * 2) % vocabulary.length + vocabulary.length) % vocabulary.length;
-  const secondIndex = (firstIndex + 1) % vocabulary.length;
-  const first = vocabulary[firstIndex];
-  const second = vocabulary[secondIndex];
+  const firstIndex = ((dayNumber * 2) % pool.length + pool.length) % pool.length;
+  const secondIndex = (firstIndex + 1) % pool.length;
+  const first = pool[firstIndex];
+  const second = pool[secondIndex];
   if (!first || !second || first.id === second.id) throw new Error("The daily word pair is unavailable.");
   return [first, second];
 }

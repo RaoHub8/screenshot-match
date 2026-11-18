@@ -127,7 +127,16 @@ function VocabularyHome() {
   }, [hydrated, progress]);
 
   const todayKey = now ? getLocalDateKey(now) : "";
-  const todayWords = useMemo(() => todayKey ? getWordsForDate(todayKey) : null, [todayKey]);
+  const todayWords = useMemo(
+    () => todayKey ? getWordsForDate(todayKey, progress.learnedIds) : null,
+    [todayKey, progress.learnedIds],
+  );
+  const learnedVocabularyCount = new Set(
+    progress.learnedIds.filter((id) => vocabulary.some((word) => word.id === id)),
+  ).size;
+  const unlearnedCount = Math.max(0, vocabulary.length - learnedVocabularyCount);
+  const isLowWords = unlearnedCount <= 10 && unlearnedCount > 0;
+  const isAllLearned = unlearnedCount === 0;
   const schedule = now ? getScheduleAccess(now, progress.previewMode) : { morning: false, evening: false, quiz: false };
   const quizQuestions = useMemo(() => todayWords ? buildDailyQuiz(todayWords) : [], [todayWords]);
   const todayAttempts = progress.attempts.filter((attempt) => attempt.date === todayKey);
@@ -243,6 +252,18 @@ function VocabularyHome() {
                 <div><p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{timeLabel}</p><h1 className="mt-2 font-display text-3xl font-semibold sm:text-4xl">A little language, daily.</h1><p className="mt-2 text-sm text-muted-foreground">Two practical words. A clearer way to say what you mean.</p></div>
                 <div className="flex items-center gap-3 pb-1 text-xs text-muted-foreground"><span className="inline-flex items-center gap-1.5"><Sun className="size-4 text-primary" />6:00 AM</span><span className="h-4 w-px bg-border" /><span className="inline-flex items-center gap-1.5"><Moon className="size-4 text-editorial" />5:00 PM</span></div>
               </div>
+              {isLowWords && (
+               <div className="mt-5 flex items-center gap-3 rounded-lg border border-red-500/40 bg-red-500/10 p-3.5 text-sm text-red-700 dark:text-red-300" role="alert">
+                 <Sparkles className="size-4 shrink-0" />
+                 <span><strong>Low word supply.</strong> Only {unlearnedCount} new {unlearnedCount === 1 ? "word" : "words"} remaining. Add more words manually to keep learning.</span>
+               </div>
+              )}
+              {isAllLearned && (
+               <div className="mt-5 flex items-center gap-3 rounded-lg border border-primary/30 bg-primary/10 p-3.5 text-sm text-primary" role="status">
+                 <Check className="size-4 shrink-0" />
+                 <span><strong>Incredible milestone!</strong> You have learned every word in the library.</span>
+               </div>
+              )}
 
               <div className="relative mt-6 h-36 overflow-hidden rounded-sm sm:h-44">
                 <img src={deskImage} alt="A quiet writing desk in morning light" className="absolute inset-0 size-full object-cover object-center" width={1200} height={720} fetchPriority="high" />
