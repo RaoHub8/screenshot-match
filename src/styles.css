@@ -202,3 +202,99 @@
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
+
+html, body, #root {
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+.app-shell {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.quiz-intro-panel,
+.quiz-question-panel,
+.quiz-result-panel {
+  width: 100%;
+  border: 1px solid var(--night-line);
+  border-radius: var(--radius-sm);
+  background: var(--night-panel);
+  padding: 1.5rem;
+}
+
+[data-mode="night"] {
+  background: var(--night);
+  color: var(--night-ink);
+}
+
+@media (max-width: 639px) {
+  .app-shell header [aria-label="Word by Word home"] {
+    gap: 0.5rem;
+  }
+
+  .app-shell header [aria-label="Word by Word home"] > span:first-child {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .app-shell header [aria-label="Word by Word home"] > span:last-child > span:last-child {
+    display: none;
+  }
+
+  .app-shell > .mx-auto.grid {
+    display: block;
+    padding-top: 1rem;
+  }
+
+  .app-shell aside {
+    position: static;
+  }
+
+  .app-shell aside nav {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.35rem;
+    overflow: visible;
+  }
+
+  .app-shell aside nav button {
+    min-width: 0;
+    height: auto;
+    min-height: 44px;
+    justify-content: center;
+    padding: 0.55rem 0.35rem;
+    text-align: center;
+    font-size: 0.75rem;
+  }
+
+  .app-shell aside nav button svg {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  .app-shell main {
+    margin-top: 1.25rem;
+  }
+
+  .quiz-intro-panel,
+  .quiz-question-panel,
+  .quiz-result-panel {
+    padding: 1.25rem;
+  }
+
+  .quiz-intro-panel h1,
+  .quiz-result-panel h1 {
+    font-size: 2rem;
+  }
+
+  [role="tablist"] {
+    width: 100%;
+  }
+
+  [role="tab"] {
+    flex: 1;
+    justify-content: center;
+  }
+}

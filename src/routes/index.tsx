@@ -219,7 +219,7 @@ function VocabularyHome() {
         <div className="mx-auto flex min-h-16 max-w-6xl items-center justify-between px-4 py-3 sm:px-7">
           <button className="flex items-center gap-3 text-left" onClick={() => { setActivePage("study"); setActiveSlot("morning"); }} aria-label="Word by Word home">
             <span className="grid size-10 place-items-center rounded-sm bg-primary text-primary-foreground"><BookOpen className="size-5" /></span>
-            <span><span className="block font-display text-lg font-semibold leading-5">Word by Word</span><span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">A daily vocabulary ritual</span></span>
+            <span><span className="block font-display text-base font-semibold leading-5 sm:text-lg">Word by Word</span><span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">A daily vocabulary ritual</span></span>
           </button>
           <div className="flex items-center gap-2">
             {streak > 0 && <span className="hidden items-center gap-1.5 border-r border-border px-3 text-sm font-semibold sm:inline-flex" title="Daily quiz streak"><Flame className="size-4 text-editorial" />{streak} day{streak === 1 ? "" : "s"}</span>}
